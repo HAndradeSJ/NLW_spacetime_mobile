@@ -1,25 +1,13 @@
-import { StatusBar } from 'expo-status-bar'
-import { Text, View, ImageBackground, TouchableOpacity } from 'react-native'
+import { Text, View, TouchableOpacity } from 'react-native'
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session'
 import * as SecureStore from 'expo-secure-store'
-import { View, Text } from 'react-native'
 import { useRouter } from 'expo-router'
-import {
-  useFonts,
-  Roboto_400Regular,
-  Roboto_700Bold,
-} from '@expo-google-fonts/roboto'
-
-import { BaiJamjuree_700Bold } from '@expo-google-fonts/bai-jamjuree'
-import { useEffect } from 'react'
 
 // Importando a imgaem de blur e a linha
-import Bluer from './src/public/luz.png'
-import Stripts from './src/public/stripts.svg'
-import Logo from './src/public/logo.svg'
-import { styled } from 'nativewind'
+import Logo from './src/asstes/logo.svg'
 import { api } from '../src/lib/api'
-import Memories from './memories'
+import memories from './memories'
+import React, { useEffect } from 'react'
 
 const discovery = {
   authorizationEndpoint: 'https://github.com/login/oauth/authorize',
@@ -27,8 +15,6 @@ const discovery = {
   revocationEndpoint:
     'https://github.com/settings/connections/applications/2c69ccfa39fe92bdb28c',
 }
-
-const StyledStripes = styled(Stripts)
 
 export default function App(): any {
   const router = useRouter()
@@ -66,22 +52,8 @@ export default function App(): any {
     }
   }, [response])
 
-  // função que retorna um boleano enquanto as fonts nn carregar
-  const [hadsloadfonts] = useFonts({
-    Roboto_400Regular,
-    Roboto_700Bold,
-    BaiJamjuree_700Bold,
-  })
-  if (!hadsloadfonts) {
-    return null
-  }
   return (
-    <ImageBackground
-      source={Bluer}
-      className="flex-1  items-center relative bg-gray-900 px-10 "
-      imageStyle={{ positon: 'absolute', left: '-100%' }}
-    >
-      <StyledStripes className="abosolute left-2" />
+    <View className="flex-1 items-centerpx-8 py-10">
       <View className="flex-1 items-center justify-center gap-6">
         <Logo />
         <View className="space-y-2">
@@ -106,8 +78,6 @@ export default function App(): any {
       <Text className="text-center font-body text-sm leading-relaxed text-gray-200">
         Feito com 💜 no NLW da Rocketseat
       </Text>
-
-      <StatusBar style="light" translucent />
-    </ImageBackground>
+    </View>
   )
 }
