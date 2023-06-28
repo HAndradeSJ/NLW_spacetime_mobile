@@ -1,12 +1,23 @@
-import { ScrollView, TextInput, TouchableOpacity, View } from 'react-native'
+import { ScrollView, TextInput, TouchableOpacity, View, Text } from 'react-native'
 import NLWLogo from '../src/assets/logo.svg'
 import Icons from '@expo/vector-icons/Feather'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Link } from 'expo-router'
+import { useState } from 'react'
 
 export default function NewMemory() {
   const { bottom, top } = useSafeAreaInsets()
-  const [ispublic, setispublic] = usestate(false)
+  const [content,setContent] = useState('')
+  const [ispublic, setispublic] = useState(false)
+
+
+  function openImagePicker(){
+      
+  }
+
+  function createMemory() {
+
+  }
   return (
     <ScrollView
       className="flex-1 px-8"
@@ -36,10 +47,11 @@ export default function NewMemory() {
               </Text>
           </View>
         </TouchableOpacity>
-        <TextInput multiline className='p-0 font-body text-lg text-gray-50' placeholder='Fique livre para adicionar fotos, vídeos e relatos sobre essa experiência que você quer lembrar para sempre.' placeholderTextColor='#56565a'>
+        <TextInput value={content} onChangeText={setContent} multiline className='p-0 font-body text-lg text-gray-50' placeholder='Fique livre para adicionar fotos, vídeos e relatos sobre essa experiência que você quer lembrar para sempre.' placeholderTextColor='#56565a'>
         <TouchableOpacity
           activeOpacity={0.7}
           className="items-center self-end rounded-full bg-green-500 px-5 py-3"
+          onPress={()=> createMemory()}
         >
           <Text className="font-alt text-sm uppercase text-black">
             Salvar
