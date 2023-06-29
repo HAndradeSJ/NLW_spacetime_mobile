@@ -1,22 +1,72 @@
-import { ScrollView, TextInput, TouchableOpacity, View, Text } from 'react-native'
+import { ScrollView, TextInput, TouchableOpacity, View, Text, Image } from 'react-native'
 import NLWLogo from '../src/assets/logo.svg'
 import Icons from '@expo/vector-icons/Feather'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Link } from 'expo-router'
+import { Link, useRouter } from 'expo-router'
 import { useState } from 'react'
+import * as ImagePicker from 'expo-image-picker';
+import * as SecureStore  from 'expo-secure-store'
+import { api } from '../src/lib/api'
+
 
 export default function NewMemory() {
   const { bottom, top } = useSafeAreaInsets()
   const [content,setContent] = useState('')
-  const [ispublic, setispublic] = useState(false)
+  const [ispublic, setispublic] = useState(false) 
+  const [preview, setPreview] = useState<string | null>(null)
+  const router = useRouter()
 
 
-  function openImagePicker(){
-      
+  async  function openImagePicker(){
+    try{
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
+
+      if (result.assets[0]) {
+        setPreview(result.assets[0].uri);
+      }
+    }
+    catch(err){
+        console.log(err);
+    }
+   
   }
 
-  function createMemory() {
+ async function createMemory() {
+     const token = await SecureStore.getItemAsync('token')
+     let coverUrl = ''
 
+     if(preview){
+       const uploadFormData = new FormData();
+       uploadFormData.append('file',{
+          uri : preview,
+          name : 'image.jpg',
+          type : 'image/jpeg',
+
+       }as any)
+       const uploadResponse = await api.post('/upload', uploadFormData,{
+          headers:{
+            // passo o header porque o android nn reconhce que a api é multipart 
+            'Content-Type': 'multipart/form-data',
+          }
+       })
+       coverUrl = uploadResponse.data.fileUrl
+       
+     }
+     await api.post('/memories',{
+        content,
+        ispublic,
+        coverUrl,
+     },{
+        headers: {
+            Authorization : `Bearer ${token}`
+        }
+     }),
+     
+     router.push('/memories')
+     
   }
   return (
     <ScrollView
@@ -39,15 +89,21 @@ export default function NewMemory() {
               Tornar memória pública 
           </Text>
         </View>
-        <TouchableOpacity  activeOpacity={0.7} className='h-32 justify-center  items-center rounded-lg border border-dashed bg-black/20 border-gray-500'>
-          <View className='flex-row items-center gap-2'>
-              <Icons name='image' color={#fff}/>
-              <Text className="font-body text-sm text-gray-200 ">
-                  Adicionar foto ou vídeo de capa 
-              </Text>
-          </View>
+        <TouchableOpacity  activeOpacity={0.7} className='h-32 justify-center  items-center rounded-lg border border-dashed bg-black/20 border-gray-500' onPress={()=>openImagePicker()}>
+          {preview ? (
+            <Image source={{uri : preview}} className='h-full w-full rounded-lg object-cover'/>
+          )
+          : (
+            <View className='flex-row items-center gap-2'>
+            <Icons name='image' color={#fff}/>
+            <Text className="font-body text-sm text-gray-200 ">
+                Adicionar foto ou vídeo de capa 
+            </Text>
+        </View>
+          )}
+         
         </TouchableOpacity>
-        <TextInput value={content} onChangeText={setContent} multiline className='p-0 font-body text-lg text-gray-50' placeholder='Fique livre para adicionar fotos, vídeos e relatos sobre essa experiência que você quer lembrar para sempre.' placeholderTextColor='#56565a'>
+        <TextInput value={content} onChangeText={setContent} multiline className='p-0 font-body text-lg text-gray-50'   textAlignVertical="top" placeholder='Fique livre para adicionar fotos, vídeos e relatos sobre essa experiência que você quer lembrar para sempre.' placeholderTextColor='#56565a'>
         <TouchableOpacity
           activeOpacity={0.7}
           className="items-center self-end rounded-full bg-green-500 px-5 py-3"
